@@ -32,6 +32,12 @@
 #import <UIKit/UIKit.h>
 #endif
 
+#if __MAC_OS_X_VERSION_MIN_REQUIRED
+#define HTTP_PIPELINING_AVAILABLE (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6)
+#else
+#define HTTP_PIPELINING_AVAILABLE YES
+#endif
+
 #ifdef _SYSTEMCONFIGURATION_H
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <netinet/in.h>
@@ -438,7 +444,8 @@ static void AFNetworkReachabilityReleaseCallback(const void *info) {
     [request setHTTPMethod:method];
     [request setAllHTTPHeaderFields:self.defaultHeaders];
     
-    if ([method isEqualToString:@"GET"] || [method isEqualToString:@"HEAD"]) {
+    if (HTTP_PIPELINING_AVAILABLE &&
+        ([method isEqualToString:@"GET"] || [method isEqualToString:@"HEAD"])) {
         [request setHTTPShouldUsePipelining:YES];
     }
 	
